@@ -54,3 +54,37 @@ class season_crawler():
                 calendar[cols[gp_idx].text] = ["http://" + self.hostname + link, cols[date_idx].text]
 
         return calendar
+
+    def get_drivers(self):
+        drivers = []
+
+        # Find out where the Drivers are
+        h2s = self.soup.select('h2')
+        for h2 in h2s:
+            if h2.text == "Entry List":
+                div = h2.parent
+
+        # Find out where the drivers are
+        table = div.find('table')
+        table_head = table.find('thead')
+        driver_idx = 0
+        idx = 0
+        rows = table_head.find_all('tr')
+        for row in rows:
+            cols = row.find_all('th')
+            for col in cols:        
+                if col.text == "Drivers":
+                    driver_idx = idx
+                idx = idx + 1
+        
+        tables_body = table.find_all('tbody')
+
+        for table in tables_body:
+            rows = table.find_all('tr')
+            for row in rows:
+                cols = row.find_all('td')
+                
+                drivers.append(cols[driver_idx].text)
+        
+        return drivers
+

@@ -75,6 +75,66 @@ class lap_time_crawler:
 
         return dic_laptime
 
+    def get_average_laptime(self):
+        if self.dic_laptime == None:
+            self.get_laptime_dic()
+
+        laps = np.array([])
+
+        for key in list(self.dic_laptime.keys()):
+            laps = np.append(laps, self.dic_laptime[key][1])
+        
+        return np.mean(laps)
+
+    def get_normalized_laps(self, driver):
+
+        average_mean = self.get_average_laptime()
+
+        if not (driver in list(self.dic_laptime.keys())):
+            print ("Could not find driver %s !" % driver)
+            return None
+
+        laps = self.dic_laptime[driver][1]
+
+        # Some GP has lap times at 0 
+        #   Probably an encoding issue
+        laps = laps[laps != 0]
+
+        laps = laps / average_mean
+
+        return laps
+
+    def get_normalized_laps_no_over(self, driver, max_value=10):
+
+        average_mean = self.get_average_laptime()
+
+        if not (driver in list(self.dic_laptime.keys())):
+            print ("Could not find driver %s !" % driver)
+            return None
+
+        laps = self.dic_laptime[driver][1]
+
+        # Some GP has lap times at 0 
+        #   Probably an encoding issue
+        laps = laps[laps != 0]
+
+        laps = laps / average_mean
+
+        # Remove outliers
+        laps = laps[laps <= max_value]
+
+        return laps
+
+    def get_normalized_laps_all_driver(self):
+        if self.dic_laptime == None:
+            self.get_laptime_dic()
+        
+        dic_norm = {}
+        for key in list(self.dic_laptime.key()):
+            dic_norm[key] = self.get_normalized_laps(key)
+
+        return dic_norm
+
     def plot_drivers_all_laps(self, drivers="all"):
         if self.dic_laptime == None:
             self.get_laptime_dic()
